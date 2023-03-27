@@ -2,17 +2,17 @@
 import { useEffect, useState } from 'react';
 import axios from 'axios';
 // import { useQuery } from 'react-query';
-import { Container, ButtonModified } from './style';
+import { Container, ButtonModified, ExternalContainer, SimpleText } from './style';
 import { TextField } from '@material-ui/core';
 
 export const ButtonStyled = () => {
   const [data, setData] = useState([]);
+  const [generatedImage, setGeneratedImage] = useState('');
   const [query, setQuery] = useState('');
   const [loading, setLoading] = useState(false);
 
   const useHandleRequest = () => {
     console.log('click');
-    useEffect(() => {
       axios
         .post(
           'https://api.openai.com/v1/chat/completions',
@@ -40,8 +40,41 @@ export const ButtonStyled = () => {
         .catch((err) => {
           console.log(err);
         })
-        .finally(() => {});
-    }, []);
+        .finally(() => {
+          handleDallERequest(data);
+        });
+
+  };
+
+
+  const handleDallERequest = (prompt) => {
+    console.log('click');
+      axios
+        .post(
+          'https://api.openai.com/v1/images/generations',
+          {
+            prompt: prompt,
+            n: 1,
+            size: "1024x1024",
+          },
+          {
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization:
+                'Bearer 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',
+            },
+          }
+        )
+        .then((res) => {
+          console.log("Then");
+          console.log(res.data);
+        })
+        .catch((err) => {
+          console.log(err);
+        })
+        .finally(() => {
+          console.log('finally');
+        });
   };
 
   // const useHandleRequest = (query) => {
@@ -80,6 +113,7 @@ export const ButtonStyled = () => {
   // };
 
   return (
+    <ExternalContainer>
     <Container>
       <TextField
         id='outlined-basic'
@@ -88,12 +122,17 @@ export const ButtonStyled = () => {
         onChange={(e) => setQuery(e.target.value)}
       />
       <ButtonModified
-        variant='success'
         color='primary'
         onClick={useHandleRequest}>
         Request
       </ButtonModified>
-      <p>{data.choices && data.choices[0].message.content}</p>
-    </Container>
+      {/* <ButtonModified
+        color='primary'
+        onClick={handleDallERequest}>
+        Dall-E
+      </ButtonModified> */}
+      </Container>
+      <SimpleText>{data.choices && data.choices[0].message.content}</SimpleText>
+    </ExternalContainer>
   );
 };

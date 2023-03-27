@@ -21,7 +21,21 @@ export const Container = styled.div`
   align-items: center;
   gap: 16px;
 `;
+
+export const ExternalContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 16px;
+`;
+
 export const ButtonModified = styled(Button)`
   background-color: #4caf50 !important; /* Green */
   color: white !important;
+`;
+
+export const SimpleText = styled.p`
+  color: black;
+  font-size: 14px;
 `;
