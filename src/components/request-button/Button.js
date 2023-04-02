@@ -1,5 +1,5 @@
 // import logo from './logo.svg';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import axios from 'axios';
 // import { useQuery } from 'react-query';
 import {
@@ -48,16 +48,15 @@ export const ButtonStyled = () => {
         }
       )
       .then((res) => {
-        setData(res.data);
-        setText(data.choices[0].message.content);
         console.log(res.data);
+        handleDallERequest(res.data.choices[0].message.content);
+        setText(res.data.choices[0].message.content);
       })
       .catch((err) => {
         console.log(err);
       })
       .finally(() => {
         setLoadingText(false);
-        handleDallERequest(data.choices[0].message.content);
       });
   };
 
