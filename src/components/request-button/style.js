@@ -39,3 +39,8 @@ export const SimpleText = styled.p`
   color: black;
   font-size: 14px;
 `;
+
+export const OutputImage = styled.img`
+  width: 250px;
+  height: 250px;
+`;

@@ -2,7 +2,13 @@
 import { useEffect, useState } from 'react';
 import axios from 'axios';
 // import { useQuery } from 'react-query';
-import { Container, ButtonModified, ExternalContainer, SimpleText } from './style';
+import {
+  Container,
+  ButtonModified,
+  ExternalContainer,
+  SimpleText,
+  OutputImage,
+} from './style';
 import { TextField } from '@material-ui/core';
 
 export const ButtonStyled = () => {
@@ -11,128 +17,91 @@ export const ButtonStyled = () => {
   const [query, setQuery] = useState('');
   const [loading, setLoading] = useState(false);
 
-  const useHandleRequest = () => {
+  const handleRequest = () => {
     console.log('click');
-      axios
-        .post(
-          'https://api.openai.com/v1/chat/completions',
-          {
-            model: 'gpt-3.5-turbo',
-            messages: [
-              {
-                role: 'user',
-                content: query,
-              },
-            ],
-          },
-          {
-            headers: {
-              'Content-Type': 'application/json',
-              Authorization:
-                'Bearer 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',
+    axios
+      .post(
+        'https://api.openai.com/v1/chat/completions',
+        {
+          model: 'gpt-3.5-turbo',
+          messages: [
+            {
+              role: 'user',
+              content: query,
             },
-          }
-        )
-        .then((res) => {
-          setData(res.data);
-          console.log(res.data);
-        })
-        .catch((err) => {
-          console.log(err);
-        })
-        .finally(() => {
-          handleDallERequest(data);
-        });
-
+          ],
+        },
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization:
+              'Bearer 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',
+          },
+        }
+      )
+      .then((res) => {
+        setData(res.data);
+        console.log(res.data);
+      })
+      .catch((err) => {
+        console.log(err);
+      })
+      .finally(() => {
+        handleDallERequest(data.choices[0].message.content);
+      });
   };
-
 
   const handleDallERequest = (prompt) => {
-    console.log('click');
-      axios
-        .post(
-          'https://api.openai.com/v1/images/generations',
-          {
-            prompt: prompt,
-            n: 1,
-            size: "1024x1024",
+    console.log('Dall-e');
+    axios
+      .post(
+        'https://api.openai.com/v1/images/generations',
+        {
+          prompt: prompt,
+          n: 1,
+          size: '1024x1024',
+        },
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization:
+              'Bearer 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',
           },
-          {
-            headers: {
-              'Content-Type': 'application/json',
-              Authorization:
-                'Bearer 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',
-            },
-          }
-        )
-        .then((res) => {
-          console.log("Then");
-          console.log(res.data);
-        })
-        .catch((err) => {
-          console.log(err);
-        })
-        .finally(() => {
-          console.log('finally');
-        });
+        }
+      )
+      .then((res) => {
+        console.log('Then');
+        console.log(res.data);
+        setGeneratedImage(res.data.data[0].url);
+      })
+      .catch((err) => {
+        console.log(err);
+      })
+      .finally((res) => {
+        console.log('finally');
+      });
   };
-
-  // const useHandleRequest = (query) => {
-  //   console.log('click');
-  //   setLoading(true);
-  //   axios
-  //     .post(
-  //       'https://api.openai.com/v1/chat/completions',
-  //       {
-  //         model: 'gpt-3.5-turbo',
-  //         messages: [
-  //           {
-  //             role: 'user',
-  //             content: query,
-  //           },
-  //         ],
-  //       },
-  //       {
-  //         headers: {
-  //           'Content-Type': 'application/json',
-  //           Authorization:
-  //             'Bearer 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',
-  //         },
-  //       }
-  //     )
-  //     .then((res) => {
-  //       setData(res.data);
-  //       console.log(res.data);
-  //     })
-  //     .catch((err) => {
-  //       console.log(err);
-  //     })
-  //     .finally(() => {
-  //       setLoading(false);
-  //     });
-  // };
 
   return (
     <ExternalContainer>
-    <Container>
-      <TextField
-        id='outlined-basic'
-        label="What's your story?"
-        variant='outlined'
-        onChange={(e) => setQuery(e.target.value)}
-      />
-      <ButtonModified
-        color='primary'
-        onClick={useHandleRequest}>
-        Request
-      </ButtonModified>
-      {/* <ButtonModified
-        color='primary'
-        onClick={handleDallERequest}>
-        Dall-E
-      </ButtonModified> */}
+      <Container>
+        <TextField
+          id='outlined-basic'
+          label="What's your story?"
+          variant='outlined'
+          onChange={(e) => setQuery(e.target.value)}
+        />
+        <ButtonModified
+          color='primary'
+          onClick={handleRequest}>
+          Request
+        </ButtonModified>
       </Container>
       <SimpleText>{data.choices && data.choices[0].message.content}</SimpleText>
+      <OutputImage
+        src={generatedImage}
+        alt='Imagem gerada'
+      />
     </ExternalContainer>
   );
 };
