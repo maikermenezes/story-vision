@@ -8,6 +8,7 @@ import {
   ExternalContainer,
   SimpleText,
   OutputImage,
+  LoadingButton,
 } from './style';
 import { TextField } from '@material-ui/core';
 
@@ -15,10 +16,17 @@ export const ButtonStyled = () => {
   const [data, setData] = useState([]);
   const [generatedImage, setGeneratedImage] = useState('');
   const [query, setQuery] = useState('');
-  const [loading, setLoading] = useState(false);
+  const [loadingText, setLoadingText] = useState(false);
+  const [loadingImage, setLoadingImage] = useState(false);
+  const [foundImage, setFoundImage] = useState(false);
+  const [text, setText] = useState('');
 
   const handleRequest = () => {
     console.log('click');
+    setLoadingText(true);
+    setFoundImage(false);
+    setText('');
+    setGeneratedImage('');
     axios
       .post(
         'https://api.openai.com/v1/chat/completions',
@@ -41,18 +49,21 @@ export const ButtonStyled = () => {
       )
       .then((res) => {
         setData(res.data);
+        setText(data.choices[0].message.content);
         console.log(res.data);
       })
       .catch((err) => {
         console.log(err);
       })
       .finally(() => {
+        setLoadingText(false);
         handleDallERequest(data.choices[0].message.content);
       });
   };
 
   const handleDallERequest = (prompt) => {
     console.log('Dall-e');
+    setLoadingImage(true);
     axios
       .post(
         'https://api.openai.com/v1/images/generations',
@@ -70,15 +81,15 @@ export const ButtonStyled = () => {
         }
       )
       .then((res) => {
-        console.log('Then');
-        console.log(res.data);
+        console.log(res.data.data);
+        setFoundImage(true);
         setGeneratedImage(res.data.data[0].url);
       })
       .catch((err) => {
         console.log(err);
       })
       .finally((res) => {
-        console.log('finally');
+        setLoadingImage(false);
       });
   };
 
@@ -97,11 +108,15 @@ export const ButtonStyled = () => {
           Request
         </ButtonModified>
       </Container>
-      <SimpleText>{data.choices && data.choices[0].message.content}</SimpleText>
-      <OutputImage
-        src={generatedImage}
-        alt='Imagem gerada'
-      />
+      {loadingText && <LoadingButton />}
+      <SimpleText>{text}</SimpleText>
+      {loadingImage && <LoadingButton />}
+      {foundImage && (
+        <OutputImage
+          src={generatedImage}
+          alt='Imagem gerada'
+        />
+      )}
     </ExternalContainer>
   );
 };

@@ -44,3 +44,31 @@ export const OutputImage = styled.img`
   width: 250px;
   height: 250px;
 `;
+
+export const LoadingButton = styled.span`
+  @-webkit-keyframes spin {
+    to {
+      -webkit-transform: rotate(360deg);
+      transform: rotate(360deg);
+    }
+  }
+
+  @keyframes spin {
+    to {
+      -webkit-transform: rotate(360deg);
+      transform: rotate(360deg);
+    }
+  }
+
+  &:before {
+    -webkit-animation: spin 0.5s infinite linear;
+    animation: spin 0.5s infinite linear;
+    border-radius: 100%;
+    -webkit-box-shadow: inset -2px 0 0 0px black;
+    box-shadow: inset -2px 0 0 0px black;
+    content: '';
+    height: 50px;
+    position: absolute;
+    width: 50px;
+  }
+`;
