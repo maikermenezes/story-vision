@@ -27,6 +27,7 @@ export const ButtonStyled = () => {
   const [loadingImage, setLoadingImage] = useState(false);
   const [foundImage, setFoundImage] = useState(false);
   const [text, setText] = useState('');
+  const [prePromptArray, setPrePromptArray] = useState([]);
   const [promptArray, setPromptArray] = useState([]);
   const [storyArray, setStoryArray] = useState([]);
   const [imageArray, setImageArray] = useState([]);
@@ -329,6 +330,13 @@ export const ButtonStyled = () => {
     setFoundImage(false);
     setText('');
     setGeneratedImage('');
+
+    let suffix = ', enumerating the paragraphs as in:\n'
+      + '1- Paragraph content...\n'
+      + '2- Paragraph content...\n'
+      + '3- Paragraph content...\n'
+      + 'Please, divide the content in multiple short paragraphs'
+
     axios
       .post(
         'https://api.openai.com/v1/chat/completions',
@@ -337,7 +345,7 @@ export const ButtonStyled = () => {
           messages: [
             {
               role: 'user',
-              content: query,
+              content: query + suffix,
             },
           ],
         },
@@ -353,7 +361,7 @@ export const ButtonStyled = () => {
         console.log(res.data);
         // handleDallERequest(res.data.choices[0].message.content);
         setText(res.data.choices[0].message.content);
-        handleStory(res.data.choices[0].message.content);
+        handleRawStory(res.data.choices[0].message.content);
       })
       .catch((err) => {
         console.log(err);
@@ -370,9 +378,9 @@ export const ButtonStyled = () => {
       .post(
         'https://api.openai.com/v1/images/generations',
         {
-          prompt: prompt + ' cartoon style',
+          prompt: prompt + ' realistic style, 4k',
           n: 1,
-          size: '1024x1024',
+          size: '256x256',
         },
         {
           headers: {
@@ -393,14 +401,60 @@ export const ButtonStyled = () => {
         console.log(err);
       })
       .finally((res) => {
-        // setLoadingImage(false);
+        setLoadingImage(false);
       });
   };
 
-  const handleStory = (story) => {
-    story.split('.').map((phrase) => {
+  const handleRawStory = (story) => {
+    let request = 'For each numbered paragraphs, generate a prompt for an image generator formatted like:\n'
+      + '1- Prompt for paragraph 1\n'
+      + '2- Prompt for paragraph 2\n'
+      + '3- Prompt for paragraph 3\n'
+      + 'X. Prompt for paragraph X\n'
+      + 'and so on ...\n'
+      + 'Please, avoid naming characters and keep the prompts concise to the maximum\n'
+      + 'The prompts should never be longer than one sentence\n'
+      + 'Extremely IMPORTANT: If there are X paragraphs, return exactly X prompts.';
+    axios
+      .post(
+        'https://api.openai.com/v1/chat/completions',
+        {
+          model: 'gpt-3.5-turbo',
+          messages: [
+            {
+              role: 'assistant',
+              content: story
+            },
+            {
+              role: 'user',
+              content: request
+            }
+          ]
+        },
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization:
+              'Bearer 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',
+          },
+        }
+      )
+      .then((res) => {
+        console.log(res.data);
+        handlePrompts(res.data.choices[0].message.content);
+      })
+      .catch((err) => {
+        console.log(err);
+      })
+      .finally(() => {
+        setLoadingText(false);
+      });
+  };
+
+  const handlePrompts = (story) => {
+    story.split(/[0-9]+- /).map((phrase) => {
       if (phrase.length > 0) {
-        promptArray.push(phrase);
+        promptArray.push(phrase.replace("\n", ""));
       }
     });
     console.log('Prompt array::: ', promptArray);
@@ -408,15 +462,16 @@ export const ButtonStyled = () => {
   };
 
   const recursiveStory = (index) => {
-    console.log('imageArray::: ', imageArray);
+    // console.log('imageArray::: ', imageArray);
     if (index < promptArray.length) {
-      handleDallERequest(promptArray[index]);
+      //handleDallERequest(promptArray[index]);
+      var offset = 1;
       console.log('promptArray[index]: ', promptArray[index]);
 
       // storyArray.push({ text: promptArray[index], image: imageArray[index] });
-      recursiveStory(index + 1);
+      recursiveStory(index + offset);
     }
-    console.log('Story array: ', storyArray);
+    // console.log('Story array: ', storyArray);
     setLoadingImage(false);
   };
 
@@ -436,7 +491,7 @@ export const ButtonStyled = () => {
         </ButtonModified>
       </Container>
 
-      <BookContainer>
+      {/* <BookContainer>
         <BookGap></BookGap>
         <BookPages>
           {mockStory.map((item, index) => (
@@ -446,7 +501,7 @@ export const ButtonStyled = () => {
             </BookPage>
           ))}
         </BookPages>
-      </BookContainer>
+      </BookContainer> */}
 
       {loadingText && <LoadingButton />}
       <SimpleText>{text}</SimpleText>
