@@ -31,6 +31,8 @@ export const ExternalContainer = styled.div`
   justify-content: center;
   align-items: center;
   position: relative;
+  height: 100%;
+  margin-top: 2em;
   width: 100%;
 `;
 

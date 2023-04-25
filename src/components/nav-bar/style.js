@@ -2,7 +2,6 @@ import styled from 'styled-components';
 
 export const NavBarWrapper = styled.div`
   display: flex;
-  position: absolute;
   top: 0;
   left: 0;
   width: 100%;

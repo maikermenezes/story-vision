@@ -360,9 +360,7 @@ export const ButtonStyled = () => {
       .catch((err) => {
         console.log(err);
       })
-      .finally(() => {
-        setLoadingText(false);
-      });
+      .finally(() => {});
   };
 
   const handleDallERequest = async (prompt) => {
@@ -414,11 +412,13 @@ export const ButtonStyled = () => {
       handleDallERequest(promptArray[index]);
       console.log('promptArray[index]: ', promptArray[index]);
 
-      // storyArray.push({ text: promptArray[index], image: imageArray[index] });
       recursiveStory(index + 1);
     }
     console.log('Story array: ', storyArray);
     setLoadingImage(false);
+    setTimeout(() => {
+      setLoadingText(false);
+    }, 5000);
     setStoryCompiled(true);
   };
 
@@ -427,7 +427,7 @@ export const ButtonStyled = () => {
       <ContainerLoading>
         {loadingText && <LoadingBook />}
 
-        {storyCompiled && (
+        {storyCompiled && !loadingText && (
           <CarouselStyled
             autoPlay='false'
             interval='500000'>
