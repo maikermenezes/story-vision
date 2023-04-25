@@ -1,7 +1,5 @@
-// import logo from './logo.svg';
 import { useState } from 'react';
 import axios from 'axios';
-// import { useQuery } from 'react-query';
 import {
   Container,
   ButtonModified,
@@ -16,11 +14,13 @@ import {
   BookPages,
   PageImage,
   ImageText,
+  ContainerLoading,
+  CarouselStyled,
 } from './style';
 import { TextField } from '@material-ui/core';
+import { LoadingBook } from '../loading-book/Loading-book';
 
 export const ButtonStyled = () => {
-  const [data, setData] = useState([]);
   const [generatedImage, setGeneratedImage] = useState('');
   const [query, setQuery] = useState('');
   const [loadingText, setLoadingText] = useState(false);
@@ -30,6 +30,7 @@ export const ButtonStyled = () => {
   const [promptArray, setPromptArray] = useState([]);
   const [storyArray, setStoryArray] = useState([]);
   const [imageArray, setImageArray] = useState([]);
+  const [storyCompiled, setStoryCompiled] = useState(false);
 
   const mockData = [
     {
@@ -116,7 +117,7 @@ export const ButtonStyled = () => {
     //     'https://oaidalleapiprodscus.blob.core.windows.net/private/org-TOcA13azdubTJ0H7KL49EJV8/user-BR6toHGfDNRmqkHmr2wATrQ5/img-mclgjnbfdvMZZvSle1jiIrax.png?st=2023-04-09T11%3A24%3A32Z&se=2023-04-09T13%3A24%3A32Z&sp=r&sv=2021-08-06&sr=b&rscd=inline&rsct=image/png&skoid=6aaadede-4fb3-4698-a8f6-684d7786b067&sktid=a48cca56-e6da-484e-a814-9c849652bcb3&skt=2023-04-08T21%3A23%3A47Z&ske=2023-04-09T21%3A23%3A47Z&sks=b&skv=2021-08-06&sig=mrnr0TMnc9nT6uRkdw3ZGqezmGelVW%2BJdNI64VIYksA%3D',
     // },
     // {
-    //   text: "\n\nSuddenly, the woman's eyes turned red, and she muttered a curse",
+    //   text: "Suddenly, the woman's eyes turned red, and she muttered a curse",
     //   image:
     //     'https://oaidalleapiprodscus.blob.core.windows.net/private/org-TOcA13azdubTJ0H7KL49EJV8/user-BR6toHGfDNRmqkHmr2wATrQ5/img-TWNjw48nQXcPenC0bfg4Fj1Y.png?st=2023-04-09T11%3A24%3A32Z&se=2023-04-09T13%3A24%3A32Z&sp=r&sv=2021-08-06&sr=b&rscd=inline&rsct=image/png&skoid=6aaadede-4fb3-4698-a8f6-684d7786b067&sktid=a48cca56-e6da-484e-a814-9c849652bcb3&skt=2023-04-08T18%3A11%3A11Z&ske=2023-04-09T18%3A11%3A11Z&sks=b&skv=2021-08-06&sig=jHK/jVUx%2Bw5CcbsKB9XIxlpQ%2BE67r4zjOK/5I6AqE9Y%3D',
     // },
@@ -327,6 +328,8 @@ export const ButtonStyled = () => {
     console.log('click');
     setLoadingText(true);
     setFoundImage(false);
+    setStoryCompiled(false);
+    setStoryArray([]);
     setText('');
     setGeneratedImage('');
     axios
@@ -418,54 +421,44 @@ export const ButtonStyled = () => {
     }
     console.log('Story array: ', storyArray);
     setLoadingImage(false);
+    setStoryCompiled(true);
   };
 
   return (
     <ExternalContainer>
-      <Container>
-        <TextField
-          id='outlined-basic'
-          label="What's your story?"
-          variant='outlined'
-          onChange={(e) => setQuery(e.target.value)}
-        />
-        <ButtonModified
-          color='primary'
-          onClick={handleRequest}>
-          Request
-        </ButtonModified>
-      </Container>
+      <ContainerLoading>
+        {loadingText && <LoadingBook />}
 
-      <BookContainer>
-        <BookGap></BookGap>
-        <BookPages>
-          {mockStory.map((item, index) => (
-            <BookPage index={index}>
-              <PageImage src={item.image} />
-              <ImageText>{item.text}</ImageText>
-            </BookPage>
-          ))}
-        </BookPages>
-      </BookContainer>
+        {storyCompiled && (
+          <CarouselStyled
+            autoPlay='false'
+            interval='500000'>
+            {storyArray.map((item, index) => (
+              <ContainerPage key={index}>
+                <OutputImage
+                  src={item.image}
+                  alt='Imagem gerada'
+                />
+                <ImageText>{item.text}</ImageText>
+              </ContainerPage>
+            ))}
+          </CarouselStyled>
+        )}
 
-      {loadingText && <LoadingButton />}
-      <SimpleText>{text}</SimpleText>
-      {loadingImage && <LoadingButton />}
-      {/* {foundImage && (
-        <OutputImage
-          src={generatedImage}
-          alt='Imagem gerada'
-        />
-      )} */}
-      {storyArray.map((item, index) => (
-        <ContainerPage key={index}>
-          <OutputImage
-            src={item.image}
-            alt='Imagem gerada'
+        <Container>
+          <TextField
+            id='outlined-basic'
+            label="What's your story?"
+            variant='outlined'
+            onChange={(e) => setQuery(e.target.value)}
           />
-          <ImageText>{item.text}</ImageText>
-        </ContainerPage>
-      ))}
+          <ButtonModified
+            color='primary'
+            onClick={handleRequest}>
+            Request
+          </ButtonModified>
+        </Container>
+      </ContainerLoading>
     </ExternalContainer>
   );
 };
