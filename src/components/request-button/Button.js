@@ -329,7 +329,6 @@ export const ButtonStyled = () => {
     setLoadingText(true);
     setFoundImage(false);
     setStoryCompiled(false);
-    setStoryArray([]);
     setText('');
     setGeneratedImage('');
     axios
@@ -386,7 +385,6 @@ export const ButtonStyled = () => {
         }
       )
       .then((res) => {
-        // console.log(res.data.data[0].url);
         setFoundImage(true);
         setGeneratedImage(res.data.data[0].url);
         imageArray.push(res.data.data[0].url);
