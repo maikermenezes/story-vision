@@ -114,7 +114,8 @@ export const ContainerLoading = styled.div`
   justify-content: center;
   align-items: center;
   width: 100%;
-  gap: 64px;
+  gap: 56px;
+  min-height: 600px;
 `;
 
 export const CarouselStyled = styled(Carousel)`
